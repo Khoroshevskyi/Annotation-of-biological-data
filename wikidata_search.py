@@ -34,15 +34,17 @@ data = ["Hypothetical protein CELE_Y116A8B.1","Y116A8B.1","","",""]
 
 data = ["Tc00.1047053507991.70","Zinc finger, C3HC4 type (RING finger)/EF-hand domain pair, putative","","","cytoplasm"]
 
-data = ["1,6-dihydroxycyclohexa-2,4-diene-1-carboxylate dehydrogenase BPSS1906","BPSS1906","oxidation-reduction process","oxidoreductase activity",""]
+data = ["1,6-dihydroxycyclohexa-2,4-diene-1-carboxylate dehydrogenase BPSS1906","BPSS1906",
+        "oxidation-reduction process","oxidoreductase activity",""]
 
-data= ["Cell division ATP-binding protein FtsE Smed_2543","cell division ATP-binding protein FtsE Smed_2543","cell cycle","ATPase activity","Cell membrane"]
+data= ["Cell division ATP-binding protein FtsE Smed_2543","cell division ATP-binding protein FtsE Smed_2543",
+"cell cycle","ATPase activity","Cell membrane"]
 
 '''
 
 
 class FindWikiPage(object):
-    def __init__(self, config=None):
+    def __init__(self):
         logging.basicConfig(filename='find_wiki.log', level=logging.DEBUG,
                             filemode='w+', format='%(asctime)s:%(levelname)s:%(message)s')
 
@@ -167,7 +169,7 @@ class FindWikiPage(object):
         return text
 
     # checks if is RexEx in the text
-    def is_in_text(self, original_text,text_to_find):
+    def is_in_text(self, original_text, text_to_find):
 
         original_text = self.preprocess_text(original_text)
         text_to_find = self.preprocess_text(text_to_find)
@@ -193,7 +195,7 @@ class FindWikiPage(object):
         t_start = time.time()
         for found_item_id in found_entities["search"]:
             if (time.time() - t_start) > 60:
-                return ["","","","", ""]
+                return ["", "", "", "", ""]
             print(f"searching if {found_item_id['id']} gene")
             nr_found += 1
             logging.info(f"number of items found by searching: {nr_found} ")
@@ -237,7 +239,6 @@ class FindWikiPage(object):
             if item_id_list:
                 return item_id_list
 
-
     def start(self, text_list):
         print(f"Searching for: {text_list}")
         logging.info("Starting searching first item")
@@ -251,7 +252,6 @@ class FindWikiPage(object):
 
                 logging.info("Found list of items with success!")
                 return item_id_list
-
 
             item_id_list = self.try_by_splitting_values(text_list)
             if item_id_list:
@@ -268,8 +268,7 @@ class FindWikiPage(object):
 
 if __name__ == "__main__":
     data = ["Hypothetical protein CELE_Y116A8B.1", "Y116A8B.1", "", "", ""]
-    #data = ['BMAA1331', 'short chain dehydrogenase', 'oxidation-reduction process', 'oxidoreductase activity', '']
+    # data = ['BMAA1331', 'short chain dehydrogenase', 'oxidation-reduction process', 'oxidoreductase activity', '']
     find_wiki = FindWikiPage()
     id_found = find_wiki.start(data)
-    #print(find_wiki.search_entities("BMAA1331"))
     print(f"Id that were found: {id_found} ")
