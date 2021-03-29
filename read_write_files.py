@@ -29,7 +29,7 @@ def get_arg():
     parser.add_argument("-i", "--in", type=str, required=True,
                         help="File, that has to be read")
     parser.add_argument("-o", "--output", type=str, required=True,
-                        help="File, where information has to be write")
+                        help="File, where information has to be written")
     return parser.parse_args()
 
 
@@ -39,12 +39,12 @@ def main(file_in, file_out):
     
     start = time.time()
     find_wiki = FindWikiPage()
-    file = open_file(file_in)[0:200]
+    file = open_file(file_in)[0:10]
     output_list = []
     number = 0
     for data in file:
         number += 1
-        print(f"row number {number} is searchin")
+        print(f"\n ----- Row number {number} is searching")
         id_found = find_wiki.start(data)
         output_list.append(id_found)
     write_file(file_out,output_list)
@@ -55,5 +55,5 @@ def main(file_in, file_out):
 
 
 if __name__ == "__main__":
-    main("C:\\Users\\pawlo\\Downloads\\input_data\\input_data1.csv" ,
-         "C:\\Users\\pawlo\\Downloads\\input_data\\new.csv")
+    main("Data\\input_data1.csv" ,
+         "Data\\new.csv")

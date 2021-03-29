@@ -7,7 +7,7 @@ import time
 
 """
 Sometimes pywikibot is not working so it's better to write own code in sparql!
-if there there is sleep ..... try to use this:
+if there is sleep ..... try to use this:
 pywikibot.config.verbose_output = 1
 pywikibot.config.debug_log = True
 
@@ -196,7 +196,7 @@ class FindWikiPage(object):
         for found_item_id in found_entities["search"]:
             if (time.time() - t_start) > 60:
                 return ["", "", "", "", ""]
-            print(f"searching if {found_item_id['id']} gene")
+            print(f"searching whether {found_item_id['id']} is a gene")
             nr_found += 1
             logging.info(f"number of items found by searching: {nr_found} ")
             protein = self.search_by_property(found_item_id["id"], ENCODES, text_list[1])
@@ -241,7 +241,7 @@ class FindWikiPage(object):
 
     def start(self, text_list):
         print(f"Searching for: {text_list}")
-        logging.info("Starting searching first item")
+        logging.info("Start searching first item")
         t_start = time.time()
         item_id_list = self.gene_search(text_list)
         if not item_id_list:  # if found nothing splitting first value of row to separate words
@@ -271,4 +271,4 @@ if __name__ == "__main__":
     # data = ['BMAA1331', 'short chain dehydrogenase', 'oxidation-reduction process', 'oxidoreductase activity', '']
     find_wiki = FindWikiPage()
     id_found = find_wiki.start(data)
-    print(f"Id that were found: {id_found} ")
+    print(f"Id found: {id_found} ")
