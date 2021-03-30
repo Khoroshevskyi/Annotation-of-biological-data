@@ -17,7 +17,7 @@ def check_two_csvs(results_path,ground_truth_path):
     nans = wrong_results.isna().sum().sum()
     percentage_correctly_labelled = round((nans / wrong_results.size) * 100,2)
 
-    print(wrong_results)
+    print(percentage_correctly_labelled)
 
     return percentage_correctly_labelled,wrong_results
 
