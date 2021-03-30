@@ -39,7 +39,7 @@ def main(file_in, file_out):
     
     start = time.time()
     find_wiki = FindWikiPage()
-    file = open_file(file_in)[0:10]
+    file = open_file(file_in)[0:30]
     output_list = []
     number = 0
     for data in file:
@@ -55,5 +55,5 @@ def main(file_in, file_out):
 
 
 if __name__ == "__main__":
-    main("Data\\input_data1.csv" ,
+    main("Data\\Input\\input_data1.csv" ,
          "Data\\new.csv")

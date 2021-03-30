@@ -73,7 +73,7 @@ class FindWikiPage(object):
 
         return response.json()
 
-    # just prints pretty
+    # Just prints prettily
     def pretty_response(self, json_obj):
         print(json.dumps(json_obj, indent=4))
 
