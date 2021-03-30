@@ -83,6 +83,10 @@ Disadvantages of the script:
 - takes to long to find big datasets
 - not optimized
 
+The ideas how we can speed up our code:
+1) While searching first columnt it has to be "instance of: gen" : so we can delete all queried items, that are not instances of gen 
+2) Use Sparql
+
 ***
 ## Useful information about Wikidata
 First: it is important to know the names of varariable (names) of items (features) in wikidata page. So they are here:
