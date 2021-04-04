@@ -6,3 +6,5 @@ __pycache__
 apicache-py3
 
 Data/new.csv
+
+.vscode

@@ -1,7 +1,12 @@
 import pandas as pd
-
+import numpy as np
 
 def check_two_csvs(results_path,ground_truth_path):
+    '''
+    Checks whether the csv file specified in the the [results_path] matches the csv file specified in the [ground_truth_path]. Returns a percentage of rows that are equal and a list of the csv file rows that are not equal.
+
+    If files don't have same number of rows, it looks only at the number of row available in the [results_path] csv. Scoring is done per row, where the first two columns are more important. 
+    '''    
     results = pd.read_csv(results_path,header=None)
     ground_truth = pd.read_csv(ground_truth_path,header=None)
 
@@ -12,14 +17,33 @@ def check_two_csvs(results_path,ground_truth_path):
     results = results.apply(lambda x: x.apply(last_part_of_uri))
     ground_truth = ground_truth.apply(lambda x: x.apply(last_part_of_uri))
 
-    wrong_results = ground_truth[ground_truth != results]
+    scores = np.zeros(num_of_results)
+    wrong_results = list()
 
-    nans = wrong_results.isna().sum().sum()
-    percentage_correctly_labelled = round((nans / wrong_results.size) * 100,2)
+    for i in range(num_of_results):
+        score = score_rows(results.loc[i],ground_truth.loc[i])
+        scores[i] = score
+        if (score != 1):
+            wrong_results.append(i+1)
 
-    print(percentage_correctly_labelled)
+    percentage_rows_correctly_labelled = round((scores.sum() / num_of_results) * 100,2)
 
-    return percentage_correctly_labelled,wrong_results
+    print(percentage_rows_correctly_labelled, '%')
+    print(wrong_results)
+
+    return percentage_rows_correctly_labelled,wrong_results
+
+
+def score_rows(row1,row2):
+    first_two_columns_equal = (row1[0] == row2[0]) & (row1[1] == row2[1])
+    # print(first_two_columns_equal,(row1[0] == row2[0]) & (row1[1] == row2[1]),(row1[0] == row2[0]),(row1[1] == row2[1]),row1[0],row2[0],type(row1[0]),type(row2[0]),row1[1],row2[1])
+    rest_of_row_equal = (row1[2] == row2[2]) & (row1[3] == row2[3]) & (row1[4] == row2[4])
+    if (first_two_columns_equal & rest_of_row_equal):
+        return 1
+    elif (first_two_columns_equal & (not rest_of_row_equal)):
+        return 0.5
+    else:
+        return 0
 
 def last_part_of_uri(uri):
     try:
