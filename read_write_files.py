@@ -1,6 +1,6 @@
 import argparse
 import time
-from find_wiki_page import FindWikiPage
+from wikidata_search_each import FindWikiPage
 import re
 
 
@@ -40,6 +40,7 @@ def main(file_in, file_out):
     start = time.time()
     find_wiki = FindWikiPage()
     file = open_file(file_in)[0:30]
+    print(file)
     output_list = []
     number = 0
     for data in file:
@@ -47,7 +48,7 @@ def main(file_in, file_out):
         print(f"\n ----- Row number {number} is searching")
         id_found = find_wiki.start(data)
         output_list.append(id_found)
-    write_file(file_out,output_list)
+    write_file(file_out, output_list)
     end = time.time() - start
 
     m, s = divmod(end, 60)
@@ -55,5 +56,5 @@ def main(file_in, file_out):
 
 
 if __name__ == "__main__":
-    main("Data\\Input\\input_data1.csv" ,
+    main("Data\\Input\\input_data1.csv",
          "Data\\new.csv")
