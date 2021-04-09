@@ -23,7 +23,7 @@ class FindWikiPage(object):
                   'language': 'en',
                   'type': 'item',
                   'search': itemtitle,
-                  "limit": 20}
+                  "limit": 30}
 
         response = requests.get(
             WIKI_DATA_API,
@@ -32,7 +32,6 @@ class FindWikiPage(object):
 
         if response.status_code != 200:
             raise Exception("Bad response:(")
-
         return response.json()
 
     # getting id of all found items
@@ -41,6 +40,8 @@ class FindWikiPage(object):
         id_arr = []
         for item in id_found["search"]:
             id_arr.append(item['id'])
+        # print(f"The item ids for {search_item} are:")
+        # pprint.pprint(id_arr)
         return id_arr
 
     # Getting item_id and searching for all statements with values than returns dict:
@@ -142,7 +143,7 @@ class FindWikiPage(object):
                             if list_of_possible_connections[pos_con_nb][item_connections + con_number + 1] not in [None, zero_1["statement_id"]]:
 
                                 # adding new list to the list of possible connection and adding new value
-                                list_of_possible_connections.append(list_of_possible_connections[pos_con_nb])
+                                list_of_possible_connections.append(list_of_possible_connections[pos_con_nb][:])
                                 list_of_possible_connections[-1][item_connections + con_number + 1] = zero_1[
                                     "statement_id"]
 
@@ -174,8 +175,7 @@ class FindWikiPage(object):
                         list_of_possible_connections[-1][item_connections + con_number + 1] = zero_1["statement_id"]
 
         # choosing only unique lists
-        list_of_possible_connections = self.unique(list_of_possible_connections)
-
+        # list_of_possible_connections = self.unique(list_of_possible_connections)
         print(f"Possible items found: {len(list_of_possible_connections)}")
         return list_of_possible_connections
 
@@ -248,6 +248,7 @@ class FindWikiPage(object):
             # we have empty items - not check them:
             empty_items = []
             new_data = []
+            print(data)
             for string_search in range(len(data)):
                 if data[string_search] == '':
                     empty_items.append(True)
@@ -257,13 +258,18 @@ class FindWikiPage(object):
 
 
             list_item_id = self.get_id_statement_by_list(new_data)
+            # print("############## \n Stepppp 2\n")
             # pprint.pprint(list_item_id)
 
+
+
             list_of_connections = self.get_list_of_connections(list_item_id)
-            # print(list_of_connections)
+            # print("############## \n Stepppp 3\n")
+            # pprint.pprint(list_of_connections)
 
             list_of_possible_items = self.each_item_connections(list_of_connections)
-            # print("list of possible connections:")
+            print("list of possible connections:")
+            # print("############## \n Stepppp 4\n")
             # pprint.pprint(list_of_possible_items)
 
             found_list = self.choose_most_suitable(list_of_possible_items)
@@ -285,7 +291,7 @@ class FindWikiPage(object):
 
             return end_list
         except Exception as err:
-            print("Fatal error")
+            print(f"Fatal error {err}")
             print(['' for d in range(len(data))])
             return ['' for d in range(len(data))]
 
@@ -294,10 +300,12 @@ if __name__ == "__main__":
     ## sample data
     # data = ['SCO3114','SCO3114','protein transport','integral component of membrane']
     # data = ['SPy_0779','SPy0779']
-    data = ['Serine transporter BC3398',
-            'serine transporter BC3398',
-            'amino acid transmembrane transport',
-            'integral component of membrane','']
+    # data = ['Serine transporter BC3398',
+    #         'serine transporter BC3398',
+    #         'amino acid transmembrane transport',
+    #         'integral component of membrane','']
+
+    data = ["Spain", "Barcelona", 'Madrid', 'portugal', 'France']
 
     # import random
     # random.shuffle(data)
