@@ -36,12 +36,17 @@ def check_two_csvs(results_path,ground_truth_path):
 
 def score_rows(row1,row2):
     first_two_columns_equal = (row1[0] == row2[0]) & (row1[1] == row2[1])
-    # print(first_two_columns_equal,(row1[0] == row2[0]) & (row1[1] == row2[1]),(row1[0] == row2[0]),(row1[1] == row2[1]),row1[0],row2[0],type(row1[0]),type(row2[0]),row1[1],row2[1])
+    first_two_switched_around = (row1[0] == row2[1]) & (row1[0] == row2[1])
     rest_of_row_equal = (row1[2] == row2[2]) & (row1[3] == row2[3]) & (row1[4] == row2[4])
+
     if (first_two_columns_equal & rest_of_row_equal):
         return 1
+    elif (first_two_switched_around & rest_of_row_equal):
+        return 0.75
     elif (first_two_columns_equal & (not rest_of_row_equal)):
         return 0.5
+    elif (first_two_switched_around & (not rest_of_row_equal)):
+        return 0.25
     else:
         return 0
 
