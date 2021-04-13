@@ -23,7 +23,7 @@ class FindWikiPage(object):
                   'language': 'en',
                   'type': 'item',
                   'search': itemtitle,
-                  "limit": 30}
+                  "limit": 20}
 
         response = requests.get(
             WIKI_DATA_API,
@@ -247,7 +247,7 @@ class FindWikiPage(object):
 
     # starts the script with finding items and checking if they are connected
     def start(self, data):
-            # try:
+        try:
             start = time.time()
             print(data)
             # we have empty items - not check them:
@@ -275,7 +275,16 @@ class FindWikiPage(object):
             # print("############## \n Stepppp 4\n")
             # pprint.pprint(list_of_possible_items)
 
-            end_list = self.choose_most_suitable(list_of_possible_items)
+            found_list = self.choose_most_suitable(list_of_possible_items)
+
+            end_list = []
+            for empty in empty_items:
+                if empty:
+                    end_list.append('')
+                else:
+                    end_list.append(found_list[0])
+                    del found_list[0]
+
             # print(f"end list: {end_list}")
 
             print(end_list)
@@ -285,10 +294,10 @@ class FindWikiPage(object):
             print("Time spent: {} min {} sec.".format(int(m), s))
 
             return end_list
-        # except Exception as err:
-        #     print(f"Fatal error {err}")
-        #     print(['' for d in range(len(data))])
-        #     return ['' for d in range(len(data))]
+        except Exception as err:
+            print(f"Fatal error {err}")
+            print(['' for d in range(len(data))])
+            return ['' for d in range(len(data))]
 
 
 if __name__ == "__main__":
@@ -302,7 +311,7 @@ if __name__ == "__main__":
 
     # data = ["Spain", "Barcelona", 'Madrid', 'portugal', 'France']
 
-    data = ['Banana', "apple", 'pineapple', 'blueberry', 'fruit']
+    data = ['Banana', "", 'piapple', 'blueberry', 'fruit']
 
     # import random
     # random.shuffle(data)
