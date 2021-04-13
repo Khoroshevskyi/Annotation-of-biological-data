@@ -219,17 +219,22 @@ class FindWikiPage(object):
         lowest_value = len(list_of_possible_item_set[0])
         for value in range(len(list_score)):
             if list_score[value] < lowest_value:
-                lowest_value_nb = list_score
+                lowest_value_nb = value
+
         end_list = []
-        for item_id in range(len(list_of_possible_item_set[list_score])):
-            if list_of_possible_item_set[list_score][item_id] is None:
+        print("this::")
+        print(list_of_possible_item_set[lowest_value_nb])
+        for item_id in range(len(list_of_possible_item_set[lowest_value_nb])):
+            if list_of_possible_item_set[lowest_value_nb][item_id] is None:
                 for possible_item_set in list_of_possible_item_set:
                     if possible_item_set[item_id] is not None:
                         end_list.append(possible_item_set[item_id])
                         break
             else:
-                end_list.append(list_of_possible_item_set[list_score][item_id])
-
+                end_list.append(list_of_possible_item_set[lowest_value_nb][item_id])
+            if len(end_list)-1 < item_id:
+                end_list.append('')
+        print(end_list)
         return end_list
 
     # counting quantity of specific item in the list
@@ -242,7 +247,7 @@ class FindWikiPage(object):
 
     # starts the script with finding items and checking if they are connected
     def start(self, data):
-        try:
+            # try:
             start = time.time()
             print(data)
             # we have empty items - not check them:
@@ -261,8 +266,6 @@ class FindWikiPage(object):
             # print("############## \n Stepppp 2\n")
             # pprint.pprint(list_item_id)
 
-
-
             list_of_connections = self.get_list_of_connections(list_item_id)
             # print("############## \n Stepppp 3\n")
             # pprint.pprint(list_of_connections)
@@ -272,16 +275,8 @@ class FindWikiPage(object):
             # print("############## \n Stepppp 4\n")
             # pprint.pprint(list_of_possible_items)
 
-            found_list = self.choose_most_suitable(list_of_possible_items)
+            end_list = self.choose_most_suitable(list_of_possible_items)
             # print(f"end list: {end_list}")
-
-            end_list = []
-            for empty in empty_items:
-                if empty:
-                    end_list.append('')
-                else:
-                    end_list.append(found_list[0])
-                    del found_list[0]
 
             print(end_list)
 
@@ -290,10 +285,10 @@ class FindWikiPage(object):
             print("Time spent: {} min {} sec.".format(int(m), s))
 
             return end_list
-        except Exception as err:
-            print(f"Fatal error {err}")
-            print(['' for d in range(len(data))])
-            return ['' for d in range(len(data))]
+        # except Exception as err:
+        #     print(f"Fatal error {err}")
+        #     print(['' for d in range(len(data))])
+        #     return ['' for d in range(len(data))]
 
 
 if __name__ == "__main__":
@@ -305,7 +300,9 @@ if __name__ == "__main__":
     #         'amino acid transmembrane transport',
     #         'integral component of membrane','']
 
-    data = ["Spain", "Barcelona", 'Madrid', 'portugal', 'France']
+    # data = ["Spain", "Barcelona", 'Madrid', 'portugal', 'France']
+
+    data = ['Banana', "apple", 'pineapple', 'blueberry', 'fruit']
 
     # import random
     # random.shuffle(data)
