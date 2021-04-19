@@ -23,7 +23,7 @@ class FindWikiPage(object):
                   'language': 'en',
                   'type': 'item',
                   'search': itemtitle,
-                  "limit": 30}
+                  "limit": 20}
 
         response = requests.get(
             WIKI_DATA_API,
@@ -219,17 +219,26 @@ class FindWikiPage(object):
         lowest_value = len(list_of_possible_item_set[0])
         for value in range(len(list_score)):
             if list_score[value] < lowest_value:
+<<<<<<< HEAD
                 lowest_value_nb = list_score #### What's happening here? lowest_value_nb is first defined as int and now as list/array?
+=======
+                lowest_value_nb = value
+
+>>>>>>> c5895aab25e9f75a1849c53778796411bbbd4343
         end_list = []
-        for item_id in range(len(list_of_possible_item_set[list_score])):
-            if list_of_possible_item_set[list_score][item_id] is None:
+        print("this::")
+        print(list_of_possible_item_set[lowest_value_nb])
+        for item_id in range(len(list_of_possible_item_set[lowest_value_nb])):
+            if list_of_possible_item_set[lowest_value_nb][item_id] is None:
                 for possible_item_set in list_of_possible_item_set:
                     if possible_item_set[item_id] is not None:
                         end_list.append(possible_item_set[item_id])
                         break
             else:
-                end_list.append(list_of_possible_item_set[list_score][item_id])
-
+                end_list.append(list_of_possible_item_set[lowest_value_nb][item_id])
+            if len(end_list)-1 < item_id:
+                end_list.append('')
+        print(end_list)
         return end_list
 
     # counting quantity of specific item in the list
@@ -261,8 +270,6 @@ class FindWikiPage(object):
             print("############## \n Stepppp 2\n")
             # pprint.pprint(list_item_id)
 
-
-
             list_of_connections = self.get_list_of_connections(list_item_id)
             print("############## \n Stepppp 3\n")
             # pprint.pprint(list_of_connections)
@@ -273,7 +280,6 @@ class FindWikiPage(object):
             # pprint.pprint(list_of_possible_items)
 
             found_list = self.choose_most_suitable(list_of_possible_items)
-            # print(f"end list: {end_list}")
 
             end_list = []
             for empty in empty_items:
@@ -282,6 +288,8 @@ class FindWikiPage(object):
                 else:
                     end_list.append(found_list[0])
                     del found_list[0]
+
+            # print(f"end list: {end_list}")
 
             print(end_list)
 
@@ -305,7 +313,9 @@ if __name__ == "__main__":
     #         'amino acid transmembrane transport',
     #         'integral component of membrane','']
 
-    data = ["Spain", "Barcelona", 'Madrid', 'portugal', 'France']
+    # data = ["Spain", "Barcelona", 'Madrid', 'portugal', 'France']
+
+    data = ['Banana', "", 'piapple', 'blueberry', 'fruit']
 
     # import random
     # random.shuffle(data)
