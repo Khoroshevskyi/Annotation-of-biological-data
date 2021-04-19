@@ -219,7 +219,7 @@ class FindWikiPage(object):
         lowest_value = len(list_of_possible_item_set[0])
         for value in range(len(list_score)):
             if list_score[value] < lowest_value:
-                lowest_value_nb = list_score
+                lowest_value_nb = list_score #### What's happening here? lowest_value_nb is first defined as int and now as list/array?
         end_list = []
         for item_id in range(len(list_of_possible_item_set[list_score])):
             if list_of_possible_item_set[list_score][item_id] is None:
@@ -258,18 +258,18 @@ class FindWikiPage(object):
 
 
             list_item_id = self.get_id_statement_by_list(new_data)
-            # print("############## \n Stepppp 2\n")
+            print("############## \n Stepppp 2\n")
             # pprint.pprint(list_item_id)
 
 
 
             list_of_connections = self.get_list_of_connections(list_item_id)
-            # print("############## \n Stepppp 3\n")
+            print("############## \n Stepppp 3\n")
             # pprint.pprint(list_of_connections)
 
             list_of_possible_items = self.each_item_connections(list_of_connections)
             print("list of possible connections:")
-            # print("############## \n Stepppp 4\n")
+            print("############## \n Stepppp 4\n")
             # pprint.pprint(list_of_possible_items)
 
             found_list = self.choose_most_suitable(list_of_possible_items)
