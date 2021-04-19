@@ -112,5 +112,5 @@ if __name__ == "__main__":
     # main("Data\\Input\\input_data1.csv",
     #      "Data\\new.csv", 50)
     ReadWrite().main_multiproc("Data\\Input\\input_data1.csv",
-         "Data\\new.csv", 50)
+         "Data\\new.csv", 500)
 
