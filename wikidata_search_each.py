@@ -25,16 +25,13 @@ class FindWikiPage(object):
         self.list_of_possible_answers = []
 
     # searching items by expressions by using API
-
     def search_entities(self, entity_name):
-
         params = {'action': 'wbsearchentities',
                   'format': 'json',
                   'language': 'en',
                   'type': 'item',
                   'search': entity_name,
                   "limit": self.api_search_quantity}
-
 
         response = requests.get(
             WIKI_DATA_API,
@@ -64,7 +61,6 @@ class FindWikiPage(object):
         entity_page = pywikibot.ItemPage(self.repo, entity_id)
         entity_dict = entity_page.get()  # Get the item dictionary
 
-
         # ---- Create a well-structured dictionary to our needs
         wiki_relations_dict = dict(entity_dict["claims"])  # Get the claim dictionary
         relations_dict = {}
@@ -89,7 +85,6 @@ class FindWikiPage(object):
         head_entities = head['found_items']
         tail_entities = tail['found_items']
         for head_entity in head_entities:
-
             for tail_entity in tail_entities:
                 for property_id in tail_entity['statements'].keys():
 
@@ -99,7 +94,6 @@ class FindWikiPage(object):
                                                 'statement_id': head_entity['item_id_found']})
 
         return relations
-
 
     # input - list of string to find; output - list of list of found id's with all statements
     def get_relations_between_few_entities(self, entity_lists):
@@ -111,16 +105,13 @@ class FindWikiPage(object):
 
                     reversed_relations = self.add_reversed_tag_to_connections(
                         self.get_relations_between_2_entities(entity_lists[head_list_id], entity_lists[tail_list_id]))
-
                     relations.extend(reversed_relations)
 
                     list_of_relations[tail_list_id].append(relations)
         return list_of_relations
 
-
     # input - list of list of found id's with all statements; output - list of list connected items and statements
     def get_id_statement_by_list(self, entity_names):
-
         relations_lists = []
         for entity_name in entity_names:
             relations_list = []
@@ -130,17 +121,14 @@ class FindWikiPage(object):
                                              "statements": self.get_wiki_relations_by_id(item)})
                 relations_lists.append({'searching item': entity_name,
                                      'found_items': relations_list})
-
             else:
                 relations_lists.append(None)
         return relations_lists
 
-
-    # combines the different lists of relations to output entity combinations
+    # list of items connected
     def combine_relations(self, lists_of_relations):
         entity_combinations = []
         number_of_entities = len(lists_of_relations) + 1
-
 
         # loop on lists of connections  [[(1:2),(1,3)],[(2,3)]]
         for tail_entity in range(number_of_entities - 1):
@@ -153,7 +141,6 @@ class FindWikiPage(object):
 
                     added = False
                     # loop on list of already chosen items
-
                     for relation_combination_id in range(len(entity_combinations)):
 
                         # if id in the list of connections is the same as id of item that is connecting
@@ -163,7 +150,6 @@ class FindWikiPage(object):
                             if entity_combinations[relation_combination_id][tail_entity + head_entity + 1] not in [None, head_tail_relation["statement_id"]]:
 
                                 # adding new list to the list of possible connection and adding new value
-
                                 new_item = entity_combinations[relation_combination_id][:]
                                 new_item[tail_entity + head_entity + 1] = head_tail_relation["statement_id"]
                                 if new_item not in entity_combinations:
@@ -172,14 +158,12 @@ class FindWikiPage(object):
                             else:
                                 # adding new new value to existing list
                                 entity_combinations[relation_combination_id][tail_entity + head_entity + 1] = head_tail_relation["statement_id"]
-
                             added = True
 
                         # if id in the list of connections is the same as id of item to which has to be connected
                         # (statement id)
                         if entity_combinations[relation_combination_id][tail_entity + head_entity + 1] == head_tail_relation[
                             "statement_id"]:
-
                             if entity_combinations[relation_combination_id][tail_entity] not in [None,
                                                                                                  head_tail_relation["item_id"]]:
 
@@ -188,7 +172,6 @@ class FindWikiPage(object):
                                 new_item[tail_entity] = head_tail_relation["item_id"]
                                 if new_item not in entity_combinations:
                                     entity_combinations.append(new_item)
-
 
                             else:
 
@@ -202,42 +185,36 @@ class FindWikiPage(object):
                         entity_combinations[-1][tail_entity] = head_tail_relation["item_id"]
                         entity_combinations[-1][tail_entity + head_entity + 1] = head_tail_relation["statement_id"]
 
-
         # choosing only unique lists
         # list_of_possible_connections = self.get_unique_values(list_of_possible_connections)
         print(f"Possible items found: {len(entity_combinations)}")
-
         return entity_combinations
 
     # creating a list with None values with length - quantity_of_items
-    def create_none_list(self, n):
-        return [None for k in range(n)]
+    def create_none_list(self, quantity_of_items):
+        return [None for k in range(quantity_of_items)]
 
     def add_reversed_tag_to_connections(self, relation_list):
         new_list = []
-        for relation in relation_list:
-
+        for connection in relation_list:
             new_list.append(
-                {'item_id': relation['statement_id'],
-                 'property_id': relation['property_id'] + "R",
-                 'statement_id': relation['item_id']}
+                {'item_id': connection['statement_id'],
+                 'property_id': connection['property_id'] + "R",
+                 'statement_id': connection['item_id']}
             )
         return new_list
 
-
-    # gets list, and returns list with only get_unique_values values
-    def get_unique_values(self, original_list):
-
+    # gets list, and returns list with only unique values
+    def get_unique_values(self, list_original):
         # initialize a null list
         unique_list = []
 
         # traverse for all elements
-        for x in original_list:
+        for x in list_original:
             # check if exists in unique_list or not
             if x not in unique_list:
                 unique_list.append(x)
         return unique_list
-
 
     # counting quantity of specific item in the list
     def count_items(self, list_of_items, x):
@@ -276,11 +253,10 @@ class FindWikiPage(object):
             if None not in possible_item_set:
                 if self.get_unique_values(possible_item_set) == possible_item_set:
                     return possible_item_set
-
             else:
-                list_score.append(self.count_items(candidate, None))
+                list_score.append(self.count_items(possible_item_set, None))
         lowest_value_nb = 0
-        lowest_value = len(candidate_representations[0])
+        lowest_value = len(list_of_possible_item_set[0])
         for value in range(len(list_score)):
             if list_score[value] < lowest_value:
                 lowest_value_nb = value
@@ -290,15 +266,12 @@ class FindWikiPage(object):
         for item_id in range(len(list_of_possible_item_set[lowest_value_nb])):
             if list_of_possible_item_set[lowest_value_nb][item_id] is None:
                 for possible_item_set in list_of_possible_item_set:
-
                     if possible_item_set[item_id] is not None:
                         end_list.append(possible_item_set[item_id])
                         break
             else:
-
                 end_list.append(list_of_possible_item_set[lowest_value_nb][item_id])
             if len(end_list) - 1 < item_id:
-
                 end_list.append('')
         # print(end_list)
         return end_list
@@ -373,9 +346,9 @@ class FindWikiPage(object):
             # we have empty items - deleting them, but remembering where they were:
             new_data = self.delete_empty_items(raw_data)
 
-            wiki_entities = self.get_wiki_entities_by_string_list(new_data)
-            print("############## \n Stepppp 2\n")
-            # pprint.pprint(wiki_entities)
+            list_item_id = self.get_id_statement_by_list(new_data)
+            # print("############## \n Stepppp 2\n")
+            # pprint.pprint(list_item_id)
 
             list_of_connections = self.get_relations_between_few_entities(list_item_id)
             # print("############## \n Stepppp 3\n")
@@ -386,16 +359,21 @@ class FindWikiPage(object):
             # print("############## \n Stepppp 4 : self.list_of_possible_answers:\n")
             # pprint.pprint(self.list_of_possible_answers)
 
-
             end = time.time() - start
             m, s = divmod(end, 60)
             print("Time spent on searching: {} min {} sec.".format(int(m), s))
 
+        except Exception as err:
+            print(f"Fatal error {err}")
 
+
+    def search_and_get(self, raw_data):
+        self.search(raw_data)
+        end_list = self.get_answer()
+        return end_list
 
 
 if __name__ == "__main__":
-
     # sample row_data
     data1 = ['amino acid transmembrane transport',
             'Serine transporter BC3398',
@@ -408,7 +386,6 @@ if __name__ == "__main__":
 
     find_wiki = FindWikiPage(data_instances, api_search_quantity=25)
     find_wiki.search(data1)
-
 
     possible_answers = find_wiki.get_list_of_possible_answers(with_instances=True)
     print("Possible answers are:")
