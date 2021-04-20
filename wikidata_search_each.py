@@ -31,7 +31,7 @@ class FindWikiPage(object):
                   'language': 'en',
                   'type': 'item',
                   'search': itemtitle,
-                  "limit": 30}
+                  "limit": 20}
 
         response = requests.get(
             WIKI_DATA_API,
@@ -91,7 +91,6 @@ class FindWikiPage(object):
 
             for each_found_search_in_item in search_in:
                 for property_id in each_found_search_in_item['statements'].keys():
-
                     if each_found_search_item['item_id_found'] in each_found_search_in_item['statements'][property_id]:
                         connected_items.append({'item_id': each_found_search_in_item['item_id_found'],
                                                 'property_id': property_id,
@@ -155,9 +154,10 @@ class FindWikiPage(object):
                             if list_of_possible_connections[pos_con_nb][item_connections + con_number + 1] not in [None, zero_1["statement_id"]]:
 
                                 # adding new list to the list of possible connection and adding new value
-                                list_of_possible_connections.append(list_of_possible_connections[pos_con_nb][:])
-                                list_of_possible_connections[-1][item_connections + con_number + 1] = zero_1[
-                                    "statement_id"]
+                                new_item = list_of_possible_connections[pos_con_nb][:]
+                                new_item[item_connections + con_number + 1] = zero_1["statement_id"]
+                                if new_item not in list_of_possible_connections:
+                                    list_of_possible_connections.append(new_item)
 
                             else:
                                 # adding new new value to existing list
@@ -172,8 +172,11 @@ class FindWikiPage(object):
                             if list_of_possible_connections[pos_con_nb][item_connections] not in [None, zero_1["item_id"]]:
 
                                 # adding new list to the list of possible connection and adding new value
-                                list_of_possible_connections.append(list_of_possible_connections[pos_con_nb])
-                                list_of_possible_connections[-1][item_connections] = zero_1["item_id"]
+                                new_item = list_of_possible_connections[pos_con_nb][:]
+                                new_item[item_connections] = zero_1["item_id"]
+                                if new_item not in list_of_possible_connections:
+                                    list_of_possible_connections.append(new_item)
+
                             else:
 
                                 # adding new new value to existing list
