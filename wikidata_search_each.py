@@ -25,12 +25,12 @@ class FindWikiPage(object):
         self.list_of_possible_answers = []
 
     # searching items by expressions by using API
-    def search_entities(self, itemtitle):
+    def search_entities(self, entity_name):
         params = {'action': 'wbsearchentities',
                   'format': 'json',
                   'language': 'en',
                   'type': 'item',
-                  'search': itemtitle,
+                  'search': entity_name,
                   "limit": self.api_search_quantity}
 
         response = requests.get(
@@ -43,165 +43,160 @@ class FindWikiPage(object):
         return response.json()
 
     # getting id of all found items
-    def get_wiki_ids_by_string(self, search_item):
-        id_found = self.search_entities(search_item)
+    def get_wiki_ids_by_string(self, entity_name):
+        entities_found = self.search_entities(entity_name)
         id_arr = []
-        for item in id_found["search"]:
+        for item in entities_found["search"]:
             id_arr.append(item['id'])
         # print(f"The item ids for {search_item} are:")
         # pprint.pprint(id_arr)
         return id_arr
 
-    # Getting item_id and searching for all statements with values than returns dict:
-    # Dict looks like: (example)
-    # {'P1343': ['Q30039501'],
-    # 'P279': ['Q2449730', 'Q8054'],
-    # 'P31': ['Q8054'],...}
-    def get_wiki_relations_by_id(self, item_identifier):
-        if item_identifier in self.id_with_statements.keys():
-            return self.id_with_statements[item_identifier]
+    # Given an entity_id, searches for and returns all statements as dictionary.
+    # Statements are information that is linked to a wikidata entity.
+    def get_wiki_relations_by_id(self, entity_id):
+        if entity_id in self.id_with_statements.keys():
+            return self.id_with_statements[entity_id]
 
-        item = pywikibot.ItemPage(self.repo, item_identifier)
-        item_dict = item.get()  # Get the item dictionary
-        clm_dict = dict(item_dict["claims"])  # Get the claim dictionary
-        dict_of_properties = {}
+        entity_page = pywikibot.ItemPage(self.repo, entity_id)
+        entity_dict = entity_page.get()  # Get the item dictionary
 
-        for property_id in clm_dict.keys():
-            dict_of_properties[property_id] = []
+        # ---- Create a well-structured dictionary to our needs
+        wiki_relations_dict = dict(entity_dict["claims"])  # Get the claim dictionary
+        relations_dict = {}
 
-            for clm in clm_dict[property_id]:
-                response_dict = clm.toJSON()
-                if response_dict['mainsnak']['snaktype'] == 'value':
-                    if response_dict['mainsnak']['datavalue']['type'] == 'wikibase-entityid':
-                        dict_of_properties[property_id].append(
-                            'Q' + str(response_dict['mainsnak']['datavalue']['value']['numeric-id']))
+        for property_id in wiki_relations_dict.keys():
+            relations_dict[property_id] = []
 
-        self.id_with_statements[item_identifier] = dict_of_properties
-        return dict_of_properties
+            for wiki_relation in wiki_relations_dict[property_id]:
+                wiki_response_dict = wiki_relation.toJSON()
+                if wiki_response_dict['mainsnak']['snaktype'] == 'value':
+                    if wiki_response_dict['mainsnak']['datavalue']['type'] == 'wikibase-entityid':
+                        relations_dict[property_id].append(
+                            'Q' + str(wiki_response_dict['mainsnak']['datavalue']['value']['numeric-id']))
+
+        self.id_with_statements[entity_id] = relations_dict
+        return relations_dict
 
     # Searching connection in item (search_in) to item (search_item)
-    def get_relations_between_2_entities(self, search_in, search_item):
-        connected_items = []
+    def get_relations_between_2_entities(self, tail, head):
+        relations = []
         # print(search_item)
-        search_item = search_item['found_items']
-        search_in = search_in['found_items']
-        for each_found_search_item in search_item:
+        head_entities = head['found_items']
+        tail_entities = tail['found_items']
+        for head_entity in head_entities:
+            for tail_entity in tail_entities:
+                for property_id in tail_entity['statements'].keys():
 
-            for each_found_search_in_item in search_in:
-                for property_id in each_found_search_in_item['statements'].keys():
-                    if each_found_search_item['item_id_found'] in each_found_search_in_item['statements'][property_id]:
-                        connected_items.append({'item_id': each_found_search_in_item['item_id_found'],
+                    if head_entity['item_id_found'] in tail_entity['statements'][property_id]:
+                        relations.append({'item_id': tail_entity['item_id_found'],
                                                 'property_id': property_id,
-                                                'statement_id': each_found_search_item['item_id_found']})
+                                                'statement_id': head_entity['item_id_found']})
 
-        return connected_items
+        return relations
 
     # input - list of string to find; output - list of list of found id's with all statements
-    def get_relations_between_few_entities(self, list_item_id):
-        list_of_connections = [[] for k in range(len(list_item_id) - 1)]
-        for first in range(len(list_item_id)):
-            for second in range(len(list_item_id)):
-                if first < second:
-                    small_list = (self.get_relations_between_2_entities(list_item_id[first], list_item_id[second]))
+    def get_relations_between_few_entities(self, entity_lists):
+        list_of_relations = [[] for k in range(len(entity_lists) - 1)]
+        for tail_list_id in range(len(entity_lists)):
+            for head_list_id in range(len(entity_lists)):
+                if tail_list_id < head_list_id:
+                    relations = (self.get_relations_between_2_entities(entity_lists[tail_list_id], entity_lists[head_list_id]))
 
-                    reversed_list = self.change_item_statement(
-                        self.get_relations_between_2_entities(list_item_id[second], list_item_id[first]))
-                    small_list.extend(reversed_list)
+                    reversed_relations = self.add_reversed_tag_to_connections(
+                        self.get_relations_between_2_entities(entity_lists[head_list_id], entity_lists[tail_list_id]))
+                    relations.extend(reversed_relations)
 
-                    list_of_connections[first].append(small_list)
-        return list_of_connections
+                    list_of_relations[tail_list_id].append(relations)
+        return list_of_relations
 
     # input - list of list of found id's with all statements; output - list of list connected items and statements
-    def get_id_statement_by_list(self, data):
-        list_item_id = []
-        for search_item in data:
-            list_of_found_id = []
-            if search_item != '':
-                for item in self.get_wiki_ids_by_string(search_item):
-                    list_of_found_id.append({"item_id_found": item,
+    def get_id_statement_by_list(self, entity_names):
+        relations_lists = []
+        for entity_name in entity_names:
+            relations_list = []
+            if entity_name != '':
+                for item in self.get_wiki_ids_by_string(entity_name):
+                    relations_list.append({"item_id_found": item,
                                              "statements": self.get_wiki_relations_by_id(item)})
-                list_item_id.append({'searching item': search_item,
-                                     'found_items': list_of_found_id})
+                relations_lists.append({'searching item': entity_name,
+                                     'found_items': relations_list})
             else:
-                list_item_id.append(None)
-        return list_item_id
+                relations_lists.append(None)
+        return relations_lists
 
     # list of items connected
-    def combine_relations(self, list_of_list_connections):
-        list_of_possible_connections = []
-        quantity_of_items = len(list_of_list_connections) + 1
+    def combine_relations(self, lists_of_relations):
+        entity_combinations = []
+        number_of_entities = len(lists_of_relations) + 1
 
-        item_connections = 0
         # loop on lists of connections  [[(1:2),(1,3)],[(2,3)]]
-        for item_connections in range(quantity_of_items - 1):
+        for tail_entity in range(number_of_entities - 1):
 
             # loop on this item connection with each
-            for con_number in range(len(list_of_list_connections[item_connections])):
+            for head_entity in range(len(lists_of_relations[tail_entity])):
 
                 # loop on connection each item of where connection is found (e.g. 1 with 2 each)
-                for zero_1 in list_of_list_connections[item_connections][con_number]:
+                for head_tail_relation in lists_of_relations[tail_entity][head_entity]:
 
                     added = False
                     # loop on list of already chosen items
-                    for pos_con_nb in range(len(list_of_possible_connections)):
+                    for relation_combination_id in range(len(entity_combinations)):
 
                         # if id in the list of connections is the same as id of item that is connecting
-                        if list_of_possible_connections[pos_con_nb][item_connections] == zero_1["item_id"]:
+                        if entity_combinations[relation_combination_id][tail_entity] == head_tail_relation["item_id"]:
 
                             # checking if cell is not empty or have the same value
-                            if list_of_possible_connections[pos_con_nb][item_connections + con_number + 1] not in [None,
-                                                                                                                   zero_1[
-                                                                                                                       "statement_id"]]:
+                            if entity_combinations[relation_combination_id][tail_entity + head_entity + 1] not in [None, head_tail_relation["statement_id"]]:
 
                                 # adding new list to the list of possible connection and adding new value
-                                new_item = list_of_possible_connections[pos_con_nb][:]
-                                new_item[item_connections + con_number + 1] = zero_1["statement_id"]
-                                if new_item not in list_of_possible_connections:
-                                    list_of_possible_connections.append(new_item)
+                                new_item = entity_combinations[relation_combination_id][:]
+                                new_item[tail_entity + head_entity + 1] = head_tail_relation["statement_id"]
+                                if new_item not in entity_combinations:
+                                    entity_combinations.append(new_item)
 
                             else:
                                 # adding new new value to existing list
-                                list_of_possible_connections[pos_con_nb][item_connections + con_number + 1] = zero_1[
-                                    "statement_id"]
+                                entity_combinations[relation_combination_id][tail_entity + head_entity + 1] = head_tail_relation["statement_id"]
                             added = True
 
                         # if id in the list of connections is the same as id of item to which has to be connected
                         # (statement id)
-                        if list_of_possible_connections[pos_con_nb][item_connections + con_number + 1] == zero_1[
+                        if entity_combinations[relation_combination_id][tail_entity + head_entity + 1] == head_tail_relation[
                             "statement_id"]:
-                            if list_of_possible_connections[pos_con_nb][item_connections] not in [None,
-                                                                                                  zero_1["item_id"]]:
+                            if entity_combinations[relation_combination_id][tail_entity] not in [None,
+                                                                                                 head_tail_relation["item_id"]]:
 
                                 # adding new list to the list of possible connection and adding new value
-                                new_item = list_of_possible_connections[pos_con_nb][:]
-                                new_item[item_connections] = zero_1["item_id"]
-                                if new_item not in list_of_possible_connections:
-                                    list_of_possible_connections.append(new_item)
+                                new_item = entity_combinations[relation_combination_id][:]
+                                new_item[tail_entity] = head_tail_relation["item_id"]
+                                if new_item not in entity_combinations:
+                                    entity_combinations.append(new_item)
 
                             else:
 
                                 # adding new new value to existing list
-                                list_of_possible_connections[pos_con_nb][item_connections] = zero_1["item_id"]
+                                entity_combinations[relation_combination_id][tail_entity] = head_tail_relation["item_id"]
                             added = True
 
                     # if value is not added - creating a new list in the list of possible items
                     if not added:
-                        list_of_possible_connections.append(self.create_none_list(quantity_of_items))
-                        list_of_possible_connections[-1][item_connections] = zero_1["item_id"]
-                        list_of_possible_connections[-1][item_connections + con_number + 1] = zero_1["statement_id"]
+                        entity_combinations.append(self.create_none_list(number_of_entities))
+                        entity_combinations[-1][tail_entity] = head_tail_relation["item_id"]
+                        entity_combinations[-1][tail_entity + head_entity + 1] = head_tail_relation["statement_id"]
 
         # choosing only unique lists
         # list_of_possible_connections = self.get_unique_values(list_of_possible_connections)
-        print(f"Possible items found: {len(list_of_possible_connections)}")
-        return list_of_possible_connections
+        print(f"Possible items found: {len(entity_combinations)}")
+        return entity_combinations
 
     # creating a list with None values with length - quantity_of_items
     def create_none_list(self, quantity_of_items):
         return [None for k in range(quantity_of_items)]
 
-    def change_item_statement(self, list_of_connections):
+    def add_reversed_tag_to_connections(self, relation_list):
         new_list = []
-        for connection in list_of_connections:
+        for connection in relation_list:
             new_list.append(
                 {'item_id': connection['statement_id'],
                  'property_id': connection['property_id'] + "R",
