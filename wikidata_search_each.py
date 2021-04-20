@@ -23,7 +23,6 @@ class FindWikiPage(object):
         self.data = data
         self.empty_items = []
 
-
     # searching items by expressions by using API
     def search_entities(self, itemtitle):
         params = {'action': 'wbsearchentities',
@@ -31,7 +30,7 @@ class FindWikiPage(object):
                   'language': 'en',
                   'type': 'item',
                   'search': itemtitle,
-                  "limit": 20}
+                  "limit": 25}
 
         response = requests.get(
             WIKI_DATA_API,
@@ -151,7 +150,9 @@ class FindWikiPage(object):
                         if list_of_possible_connections[pos_con_nb][item_connections] == zero_1["item_id"]:
 
                             # checking if cell is not empty or have the same value
-                            if list_of_possible_connections[pos_con_nb][item_connections + con_number + 1] not in [None, zero_1["statement_id"]]:
+                            if list_of_possible_connections[pos_con_nb][item_connections + con_number + 1] not in [None,
+                                                                                                                   zero_1[
+                                                                                                                       "statement_id"]]:
 
                                 # adding new list to the list of possible connection and adding new value
                                 new_item = list_of_possible_connections[pos_con_nb][:]
@@ -169,7 +170,8 @@ class FindWikiPage(object):
                         # (statement id)
                         if list_of_possible_connections[pos_con_nb][item_connections + con_number + 1] == zero_1[
                             "statement_id"]:
-                            if list_of_possible_connections[pos_con_nb][item_connections] not in [None, zero_1["item_id"]]:
+                            if list_of_possible_connections[pos_con_nb][item_connections] not in [None,
+                                                                                                  zero_1["item_id"]]:
 
                                 # adding new list to the list of possible connection and adding new value
                                 new_item = list_of_possible_connections[pos_con_nb][:]
@@ -313,11 +315,15 @@ class FindWikiPage(object):
         return self.choose_most_suitable(self.list_of_possible_answers)
 
     def get_most_suitable(self):
-        if self.instances is not None:
-            values_for_return = self.get_best_id_by_known_instances()
-        else:
-            values_for_return = self.choose_most_suitable(self.list_of_possible_answers)
-        return values_for_return
+        try:
+            if self.instances is not None:
+                values_for_return = self.get_best_id_by_known_instances()
+            else:
+                values_for_return = self.choose_most_suitable(self.list_of_possible_answers)
+            return self.fill_empty_items(values_for_return)
+        except Exception as err:
+            print(f'in: get_most_suitable(self) has occurred an error, {err}')
+            return ['' for x in range(len(self.empty_items))]
 
     def delete_empty_items(self, data):
         self.empty_items = []
@@ -359,28 +365,27 @@ class FindWikiPage(object):
 
             self.list_of_possible_answers = self.combine_relations(list_of_connections)
             print("list of possible connections:")
-            print("############## \n Stepppp 4 : self.list_of_possible_answers:\n")
-            pprint.pprint(self.list_of_possible_answers)
-
-            dd = self.get_possible_answers(with_instances=True)
-            print(dd)
-
-            found_list = self.get_most_suitable()
-            end_list = self.fill_empty_items(found_list)
-
-            # print(f"end list: {end_list}")
-
-            print(end_list)
+            # print("############## \n Stepppp 4 : self.list_of_possible_answers:\n")
+            # pprint.pprint(self.list_of_possible_answers)
 
             end = time.time() - start
             m, s = divmod(end, 60)
             print("Time spent on searching: {} min {} sec.".format(int(m), s))
 
-            return end_list
         except Exception as err:
             print(f"Fatal error {err}")
             print(['' for d in range(len(data))])
             return ['' for d in range(len(data))]
+
+    def start(self, data):
+        self.search(data)
+        # dd = self.get_possible_answers(with_instances=True)
+        # print(dd)
+
+        end_list = self.get_most_suitable()
+
+        print(end_list)
+        return end_list
 
 
 if __name__ == "__main__":
@@ -388,15 +393,15 @@ if __name__ == "__main__":
     # data = ['SCO3114','SCO3114','protein transport','integral component of membrane']
     # data = ['SPy_0779','SPy0779']
     data = ['amino acid transmembrane transport',
-        'Serine transporter BC3398',
+            'Serine transporter BC3398',
             'serine transporter BC3398',
 
             'integral component of membrane', '']
     # correct = ['Q23196205', 'Q23514357', 'Q14905294', 'Q14327652']
-    data_instances = ['Q7187', 'Q8054', 'Q2996394', 'Q14860489','Q5058355']
+    data_instances = ['Q7187', 'Q8054', 'Q2996394', 'Q14860489', 'Q5058355']
 
-    data = ['SE2280','transcription-repair coupling factor',"regulation of transcription, DNA-templated",
-            'hydrolase activity','cytoplasm']
+    # data = ['SE2280', 'transcription-repair coupling factor', "regulation of transcription, DNA-templated",
+    #         'hydrolase activity', 'cytoplasm']
 
     # data = ["Spain", "Barcelona", 'Madrid', 'portugal', 'France']
 
@@ -404,5 +409,5 @@ if __name__ == "__main__":
     # import random
     # random.shuffle(data)
     find_wiki = FindWikiPage(data_instances)
-    output = find_wiki.search(data)
+    output = find_wiki.start(data)
     print(output)

@@ -39,7 +39,7 @@ class ReadWrite():
         find_wiki = FindWikiPage()
         print(f"\n ----- Row number {dict_to_find['number']} is searching")
         found = {'number': dict_to_find['number'],
-                            'list': find_wiki.start(dict_to_find['list'])}
+                 'list': find_wiki.start(dict_to_find['list'])}
         # print(f"self.return_values::: {self.return_values}")
         # self.return_values.append(found)
         return found
@@ -112,5 +112,5 @@ if __name__ == "__main__":
     # main("Data\\Input\\input_data1.csv",
     #      "Data\\new.csv", 50)
     ReadWrite().main_multiproc("Data\\Input\\input_data1.csv",
-         "Data\\new.csv", 500)
+         "Data\\new.csv", 2)
 
