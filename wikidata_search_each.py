@@ -256,6 +256,7 @@ class FindWikiPage(object):
             else:
                 list_score.append(self.count_items(possible_item_set, None))
         lowest_value_nb = 0
+
         lowest_value = len(list_of_possible_item_set[0])
         for value in range(len(list_score)):
             if list_score[value] < lowest_value:
@@ -277,26 +278,27 @@ class FindWikiPage(object):
         return end_list
 
     def get_best_id_by_known_instances(self):
-        # new = self.instances and self.empty_items
+
         # reversing empty_items
         empty_items_reverse = [not elem for elem in self.empty_items]
 
         # deleting instances if there is no values
         instances_adjusted = [b and a for a, b in zip(self.instances, empty_items_reverse)]
         instances_adjusted = list(filter(bool, instances_adjusted))
-        # print(instances_adjusted)
 
-        ids_with_instances = self.join_ids_with_instances()
+        ids_with_instances = self.delete_empty_items(self.join_ids_with_instances())
         for possible_answ in ids_with_instances:
             if possible_answ['instances'] == instances_adjusted:
                 return possible_answ['items']
 
-            if sorted(possible_answ['instances']) == sorted(instances_adjusted):
-                list_to_return = []
-                for correct in range(len(instances_adjusted)):
+            #instace_without_empty = self.delete_empty_items(possible_answ['instances'])
+            # if sorted(possible_answ['instances']) == sorted(instances_adjusted):
+            if all(x in self.instances for x in instances_adjusted):
+                list_to_return = ['' for d in self.instances]
+                for correct in range(len(self.instances)):
                     for item_to_sort in range(len(possible_answ['instances'])):
-                        if instances_adjusted[correct] == possible_answ['instances'][item_to_sort]:
-                            list_to_return.append(possible_answ['items'][item_to_sort])
+                        if self.instances[correct] == possible_answ['instances'][item_to_sort]:
+                            list_to_return[correct] = possible_answ['items'][item_to_sort]
                             break
                 return list_to_return
 
@@ -308,11 +310,11 @@ class FindWikiPage(object):
             if self.instances is not None:
                 values_for_return = self.get_best_id_by_known_instances()
             else:
-                values_for_return = self.choose_most_suitable(self.list_of_possible_answers)
-            return self.fill_empty_items(values_for_return)
+                values_for_return = self.fill_empty_items(self.choose_most_suitable(self.list_of_possible_answers))
+            return values_for_return
         except Exception as err:
-            print(f'in: get_most_answer has occurred an error, {err}')
-            return ['' for x in range(len(self.empty_items))]
+            print(f'in: get_answer, {err}')
+            return ['' for x in range(len(self.raw_data))]
 
     def delete_empty_items(self, data):
         self.empty_items = []
@@ -375,21 +377,26 @@ class FindWikiPage(object):
 
 if __name__ == "__main__":
     # sample row_data
-    data1 = ['amino acid transmembrane transport',
-            'Serine transporter BC3398',
-            'serine transporter BC3398',
-            'integral component of membrane', '']
+    # ['Q14905294', 'Q23514357', 'Q23196205', 'Q14327652', '']
+
     data_instances = ['Q7187', 'Q8054', 'Q2996394', 'Q14860489', 'Q5058355']
+
+    # data_instances = None
 
     # row_data = ['SE2280', 'transcription-repair coupling factor', "regulation of transcription, DNA-templated",
     #         'hydrolase activity', 'cytoplasm']
 
-    find_wiki = FindWikiPage(data_instances, api_search_quantity=25)
+    data1 = ['SCO3114', 'protein transport' , '', 'SCO3114', 'integral component of membrane']
+
+    # answer :['Q23284357', 'Q27750183', 'Q14860325', '', 'Q14327652']
+    data1 = ['BA_2233','hypothetical protein','','','']
+
+    find_wiki = FindWikiPage(data_instances, api_search_quantity=30)
     find_wiki.search(data1)
 
-    possible_answers = find_wiki.get_list_of_possible_answers(with_instances=True)
-    print("Possible answers are:")
-    print(possible_answers)
+    #possible_answers = find_wiki.get_list_of_possible_answers(with_instances=True)
+    #print("Possible answers are:")
+    #print(possible_answers)
 
     output = find_wiki.get_answer()
     print("Best answer is:")
