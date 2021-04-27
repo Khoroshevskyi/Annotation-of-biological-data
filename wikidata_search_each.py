@@ -386,18 +386,19 @@ if __name__ == "__main__":
     # row_data = ['SE2280', 'transcription-repair coupling factor', "regulation of transcription, DNA-templated",
     #         'hydrolase activity', 'cytoplasm']
 
-    data1 = ['SCO3114', 'protein transport' , '', 'SCO3114', 'integral component of membrane']
+    data1 = ['SCO3114', 'protein transport', '', 'SCO3114', 'integral component of membrane']
 
     # answer :['Q23284357', 'Q27750183', 'Q14860325', '', 'Q14327652']
-    data1 = ['BA_2233','hypothetical protein','','','']
+    #data1 = ['BA_2233','hypothetical protein','','','']
 
-    find_wiki = FindWikiPage(data_instances, api_search_quantity=30)
+    find_wiki = FindWikiPage(instances=data_instances, api_search_quantity=15)
     find_wiki.search(data1)
+    possible_answers = find_wiki.get_list_of_possible_answers(with_instances=True)
+    print("Possible answers are:")
+    pprint.pprint(possible_answers)
 
-    #possible_answers = find_wiki.get_list_of_possible_answers(with_instances=True)
-    #print("Possible answers are:")
-    #print(possible_answers)
+    # find_wiki.search(data1)
+    # output = find_wiki.get_answer()
+    # print("Best answer is:")
+    # print(output)
 
-    output = find_wiki.get_answer()
-    print("Best answer is:")
-    print(output)

@@ -1,10 +1,9 @@
-import argparse
 import time
 from wikidata_search_each import FindWikiPage
-# from find_wiki_page import FindWikiPage
 import re
 import multiprocessing
 import pprint
+import json
 
 
 class ReadWrite(object):
@@ -40,15 +39,17 @@ class ReadWrite(object):
                         dk.append(d[each_d])
                 the_file.write(f'{dk[0]},{dk[1]},{dk[2]},{dk[3]},{dk[4]}\n')
 
-    def get_instances_of_raw_data(self, file_in, quantity):
+    def get_instances_of_raw_data(self, file_in, quantity, with_instance=True):
         raw_data = self.open_file(file_in)[0:quantity]
 
         new_list = []
         for rawd in raw_data:
             find_wiki = FindWikiPage(api_search_quantity=self.api_search_quantity)
             find_wiki.search(rawd)
-            ids_with_instances = find_wiki.get_list_of_possible_answers(with_instances=True)
-            print(ids_with_instances)
+            print("Searching: ", rawd)
+            ids_with_instances = find_wiki.get_list_of_possible_answers(with_instances=with_instance)
+            print("Output: ")
+            pprint.pprint(ids_with_instances)
             for found in ids_with_instances:
                 new_list.append(found["instances"])
 
@@ -56,7 +57,7 @@ class ReadWrite(object):
         self.print_in_percent(value_counter)
 
     def count_most_popular(self, list_to_count):
-        print(list_to_count)
+        # print(list_to_count)
         value_counter = [{} for k in range(len(list_to_count[0]))]
         for one_found in list_to_count:
             for col_number in range(len(one_found)):
@@ -109,7 +110,7 @@ class ReadWrite(object):
 
         return found
 
-    def main_multiproc(self, file_in, file_out, quantity):
+    def main_multiproc(self, file_in, file_out, quantity, proc_n):
         """Main Function"""
 
         start = time.time()
@@ -125,7 +126,7 @@ class ReadWrite(object):
             new_data_list.append({'number': number,
                                   'list': data})
 
-        pool = multiprocessing.Pool()
+        pool = multiprocessing.Pool(proc_n)
         result = pool.map(self.for_multiprocessing, new_data_list)
         pool.close()
         pprint.pprint(result)
@@ -139,21 +140,34 @@ class ReadWrite(object):
         print("Time spent: {} min {} sec.".format(int(m), s))
 
 
-def get_arg():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--in", type=str, required=True,
-                        help="File, that has to be read")
-    parser.add_argument("-o", "--output", type=str, required=True,
-                        help="File, where information has to be written")
-    return parser.parse_args()
+def main():
+    config = json.load(open("config.json"))
+
+    readd = ReadWrite(data_instances=config["data_instances"],
+                      api_search_quantity=config["api_search_quantity"])
+    if config["get_possible_output"] == "True":
+        readd.get_instances_of_raw_data(file_in=config["file_in"],
+                                        quantity=config["row_number_to_check"],
+                                        with_instance=True)
+    else:
+        if "multiprocessing_number" == 1:
+            readd.main_normal(config["file_in"], config["file_out"], config["row_number_to_check"])
+        else:
+            if config["multiprocessing_number"] > multiprocessing.cpu_count():
+                config["multiprocessing_number"] = multiprocessing.cpu_count()
+            readd.main_multiproc(config["file_in"],
+                                 config["file_out"],
+                                 config["row_number_to_check"],
+                                 proc_n=config["multiprocessing_number"])
 
 
 if __name__ == "__main__":
-    data_instance = ['Q7187', 'Q8054', 'Q2996394', 'Q14860489', 'Q5058355']
-
-    readdd = ReadWrite(data_instances=data_instance, api_search_quantity=25)
-
+    main()
+    # data_instance = ['Q7187', 'Q8054', 'Q2996394', 'Q14860489', 'Q5058355']
+    #
+    # readdd = ReadWrite(data_instances=data_instance, api_search_quantity=30)
+    #
     # readdd.main_normal("Data\\Input\\input_data1.csv", "Data\\new.csv", 10)
-    # readdd.main_multiproc("Data\\Input\\input_data1.csv", "Data\\new.csv", 10)
-
-    readdd.get_instances_of_raw_data("Data\\Input\\input_data1.csv", 10)
+    # readdd.main_multiproc("Data\\Input\\input_data1.csv", "Data\\new.csv", 300)
+    #
+    # readdd.get_instances_of_raw_data("Data\\Input\\input_data1.csv", 10)

@@ -1,0 +1,10 @@
+{
+    "get_possible_output": "False",
+    "get_possible_output_method": 1,
+    "file_in" : "Data\\Input\\input_data1.csv",
+    "file_out" : "Data\\new.csv",
+    "row_number_to_check" : 5,
+    "multiprocessing_number": 1,
+    "api_search_quantity": 5,
+    "data_instances": ["Q7187", "Q8054", "Q2996394", "Q14860489", "Q5058355"]
+}
