@@ -46,10 +46,10 @@ class ReadWrite(object):
         for rawd in raw_data:
             find_wiki = FindWikiPage(api_search_quantity=self.api_search_quantity)
             find_wiki.search(rawd)
-            print("Searching: ", rawd)
+            # print("Searching: ", rawd)
             ids_with_instances = find_wiki.get_list_of_possible_answers(with_instances=with_instance)
-            print("Output: ")
-            pprint.pprint(ids_with_instances)
+            # print("Output: ")
+            # pprint.pprint(ids_with_instances)
             for found in ids_with_instances:
                 new_list.append(found["instances"])
 
@@ -57,7 +57,6 @@ class ReadWrite(object):
         self.print_in_percent(value_counter)
 
     def count_most_popular(self, list_to_count):
-        # print(list_to_count)
         value_counter = [{} for k in range(len(list_to_count[0]))]
         for one_found in list_to_count:
             for col_number in range(len(one_found)):
@@ -145,10 +144,24 @@ def main():
 
     readd = ReadWrite(data_instances=config["data_instances"],
                       api_search_quantity=config["api_search_quantity"])
-    if config["get_possible_output"] == "True":
-        readd.get_instances_of_raw_data(file_in=config["file_in"],
-                                        quantity=config["row_number_to_check"],
-                                        with_instance=True)
+    if config["classify_entities"] == "True":
+        if config["classify_entities_method"] == 1:
+            from entity_classification import EntityClassification
+            classif = EntityClassification()
+            new_instances = classif.get_entity_classif(input_data=config["file_in"],
+                                                      nrows=config["row_number_to_check"])
+            if config["search_after_classification"] == "True":
+                readd = ReadWrite(data_instances=new_instances ,
+                                  api_search_quantity=config["api_search_quantity"])
+                readd.main_multiproc(config["file_in"],
+                                     config["file_out"],
+                                     config["row_number_to_check"],
+                                     proc_n=config["multiprocessing_number"])
+
+        else:
+            readd.get_instances_of_raw_data(file_in=config["file_in"],
+                                            quantity=config["row_number_to_check"],
+                                            with_instance=True)
     else:
         if "multiprocessing_number" == 1:
             readd.main_normal(config["file_in"], config["file_out"], config["row_number_to_check"])

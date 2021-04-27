@@ -3,9 +3,6 @@ import requests
 import time
 import pprint
 
-"""
-We can improve code by trying to find items by limit 5 and increasing it !!!! In the search entities
-"""
 
 WIKI_DATA_API = 'https://www.wikidata.org/w/api.php'
 INSTANCE_OF = 'P31'

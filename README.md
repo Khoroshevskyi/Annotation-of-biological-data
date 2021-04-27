@@ -54,9 +54,15 @@ There are 2 methods, by which we can define columns:
   ```
     The output will be e.g.:
   ```
-      The output
+    {   0: [('Q8054', 318), ('Q66826848', 3), ('Q417841', 1)],
+        1: [('Q7187', 486)],
+        2: [('Q2996394', 447), ('Q4915012', 2), ('Q30612', 1), ('Q210973', 1), ('Q20732156', 1)],
+        3: [('Q14860489', 437), ('Q67015883', 1)],
+        4: [('Q5058355', 59), ('Q78155096', 6), ('Q67015883', 1), ('Q67101749', 1)]
+    }
   ```
-
+*"search_after_classification"*
+write _"True"_ if you want to search after classification and based on classification
 
 <b>*"file_in"*</b>
 
