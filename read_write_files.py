@@ -141,6 +141,8 @@ class ReadWrite(object):
 
 def main():
     config = json.load(open("config.json"))
+    if config["data_instances"] == "None":
+        config["data_instances"] = None
 
     readd = ReadWrite(data_instances=config["data_instances"],
                       api_search_quantity=config["api_search_quantity"])
