@@ -10,7 +10,7 @@ information that has to be found, and write the output to another file.<br />
 All configurations that script is using can be found in [config.json](config.json)
 
 ### Main configurations and paths that have to be specified in [config.json](config.json)</b>:
--
+
 - <b>*"classify_entities"*</b>
   
 If you don't know the instances of each column, you would like to get it, and
