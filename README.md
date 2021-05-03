@@ -2,8 +2,8 @@
 
 
 All scripts were developed for python3.x for Windows users (Other platforms are not verified)
-###Repo contains 2 scripts: 
-## read_write_files.py
+###Repo contains 3 scripts: 
+## entity_classification.py
 <br /> Script is mainly responsible for reading files which contains 
 information that has to be found, and write the output to another file.<br />
 
@@ -129,7 +129,7 @@ Or you can specify it None (if you don't know it)
 ```
 
 
-## wikidata_search_each.py
+## find_single_row_on_wikidata.py
 
 <br /> Script to find linked data in wikidata. Script uses library: requests and pywikibot to find and 
 download data on wikidata portal.
@@ -163,7 +163,7 @@ Method returning all possible answers for this _data_</b>
 If yo would like to get all possible answers with instance_of this items, you would have to specify
 _with_instances=True_, otherwise: _with_instances=False_
 
-### Some examples:
+#### Some examples:
 
 - First of all call the class "FindWikiPage":
 ```
@@ -201,3 +201,23 @@ Possible answers are:
   'items': ['Q27750183', 'Q14860325', '', 'Q27750183', 'Q14327652']}]
 
 ```
+
+## check_two_csvs.py
+
+*check_two_csvs(results_path,ground_truth_path)*
+  <br /> For given results and ground truth paths, 
+  gives a weighted accuracy of the results based on the ground truth. 
+  The scoring method is not done per cell, but per row. 
+  This method is adjusted to the annotation project where the first two columns are more important than the last three.
+
+To run this program do this:
+1) Open [check_two_csvs.py](check_two_csvs.py)
+2) Change to your path results_path and ground_truth_path this rows:
+```
+    check_two_csvs(results_path,
+                   ground_truth_path)
+```
+3) Save and Run program
+
+
+
