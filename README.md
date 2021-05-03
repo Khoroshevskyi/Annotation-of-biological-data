@@ -1,11 +1,75 @@
-# Gen - protein - other info finding in WikiData scripts
+# The annotation of biological data and not only. (Wikidata source)
 
 
-
+All scripts were developed for python3.x for Windows users (Other platforms are not verified)
 ###Repo contains three scripts: 
-- ### read_write_files.py
-<br /> Script to read file with information that has to be found:
-<br /> *file_example (input_file)*: 
+## read_write_files.py
+<br /> Script is mainly responsible for reading files which contains 
+information that has to be found, and write the output to another file.<br />
+
+All configurations that script is using can be found in [config.json](config.json)
+
+<b>Main configurations and paths that have to be specified in [config.json](config.json)</b>:
+-
+- <b>*"classify_entities"*</b>
+  
+If you don't know the instances of each column, you would like to get it, and
+to write the id of the instances of to the config file. To do this, you have to 
+put *"True"*, and afterward, you have to specify the: <br />
+- <b>*"get_possible_output_method"*</b><br />
+There are 2 methods, by which we can define columns:
+ 
+    1) Method is searching the instaces_of separately each column, and counting only
+         values, where in search output is only one element. <br />
+         Config file looks like:
+  ```
+    "get_possible_output": "True",
+    "get_possible_output_method": 2,
+    ...
+  ```
+    The output will be e.g.:
+  ```
+    {   0: [('Q7187', 486)],
+        1: [('Q8054', 318), ('Q66826848', 3), ('Q417841', 1)],
+        2: [('Q2996394', 447), ('Q4915012', 2), ('Q30612', 1), ('Q210973', 1), ('Q20732156', 1)],
+        3: [('Q14860489', 437), ('Q67015883', 1)],
+        4: [('Q5058355', 59), ('Q78155096', 6), ('Q67015883', 1), ('Q67101749', 1)]
+    }
+  ```
+    -  *"search_after_classification"*<br />
+write _"True"_ if you want to search after classification and based on classification 
+       <br /> <br /> 
+       
+    2) Method is searching all instances_of of all related items, and then
+    counts them. <br />
+    Config file looks like:
+  ```
+    "get_possible_output": "True",
+    "get_possible_output_method": 1,
+    ...
+  ```
+    The output will be e.g.:
+  ```
+            ### numb: 1
+            # Q8054 --> 58.33%
+            # Q7187 --> 41.67%
+            ### numb: 2
+            # Q7187 --> 25.0%
+            # Q8054 --> 75.0%
+            ### numb: 3
+            # Q2996394 --> 66.67%
+            #  --> 33.33%
+            ### numb: 4
+            #  --> 83.33%
+            # Q14860489 --> 16.67%
+            ### numb: 5
+            # Q5058355 --> 75.0%
+            #  --> 25.0%
+  ```
+- <b>*"file_in"*</b>
+
+ The Path to the file with input data
+ <br /> example input file (input_file): 
 
 ```
 SCO3114,SCO3114,protein transport,,integral component of membrane
@@ -14,104 +78,131 @@ Serine transporter BC3398,serine transporter BC3398,amino acid transmembrane tra
 kdsD,PP_0957,carbohydrate metabolic process,metal ion binding,
 smi_1464,smi_1464,,,integral component of membrane
 ```
+The input data can be whatever it is, but every item has to be connected with at least one item.
+
+- <b>*"file_out"*</b>
 
 <br /> Output of the script is file with links:
 <br /> *file_example (output_file)*: 
 
 ```
-https://www.wikidata.org/wiki/Q23284357,https://www.wikidata.org/wiki/Q27750183,https://www.wikidata.org/wiki/Q14860325,https://www.wikidata.org/wiki/,https://www.wikidata.org/wiki/Q14327652
-https://www.wikidata.org/wiki/Q23235634,https://www.wikidata.org/wiki/Q23497168,https://www.wikidata.org/wiki/,https://www.wikidata.org/wiki/,https://www.wikidata.org/wiki/
-https://www.wikidata.org/wiki/Q23196205,https://www.wikidata.org/wiki/Q23514357,https://www.wikidata.org/wiki/Q14905294,https://www.wikidata.org/wiki/,https://www.wikidata.org/wiki/Q14349455
-https://www.wikidata.org/wiki/Q22311550,https://www.wikidata.org/wiki/Q22318912,https://www.wikidata.org/wiki/Q2734081,https://www.wikidata.org/wiki/Q13667380,https://www.wikidata.org/wiki/
-https://www.wikidata.org/wiki/Q23235886,https://www.wikidata.org/wiki/Q23548717,https://www.wikidata.org/wiki/,https://www.wikidata.org/wiki/,https://www.wikidata.org/wiki/Q14327652
+http://www.wikidata.org/entity/Q23284357,http://www.wikidata.org/entity/Q27750183,http://www.wikidata.org/entity/Q14860325,,http://www.wikidata.org/entity/Q14327652
+http://www.wikidata.org/entity/Q23235634,http://www.wikidata.org/entity/Q23497168,,,
+http://www.wikidata.org/entity/Q23196205,http://www.wikidata.org/entity/Q23514357,http://www.wikidata.org/entity/Q14905294,,http://www.wikidata.org/entity/Q14327652
+http://www.wikidata.org/entity/Q22311550,http://www.wikidata.org/entity/Q22318912,http://www.wikidata.org/entity/Q2734081,http://www.wikidata.org/entity/Q13667380,
+http://www.wikidata.org/entity/Q23235886,http://www.wikidata.org/entity/Q23548717,,,http://www.wikidata.org/entity/Q14327652
 ```
-This script uses next, to find information:
 
-- ### find_wiki_page.py
+- <b>*"row_number_to_check"*</b>
+  
+Specify, how many rows do we want to check in the file
 
-<br /> Script to find linked genetic data in wikidata. Script uses library: requests and pywikibot to find and 
+- <b>*"multiprocessing_number"*</b>
+  
+Specify, how many cores do we want to use to fined related items
+
+- <b>*"api_search_quantity"*</b>
+  
+Specify, how many items we want to search with wikidata API,
+you have to specify value between 1 and 50. The bigger value, better result, but slower it will go.
+
+- <b>*"data_instances"*</b>
+
+Specify, the data instaces for all the clumns, if you know.
+If you don't know, you can run program with get_possible_output: "True", 
+and find this instaces_of.
+
+It has to look like: 
+
+```
+    {
+    ... ,
+    "data_instances": ["Q7187", "Q8054", "Q2996394", "Q14860489", "Q5058355"]
+}
+```
+Or you can specify it None (if you don't know it)
+```
+    {
+    ... ,
+    "data_instances": "None"
+}
+```
+
+
+## wikidata_search_each.py
+
+<br /> Script to find linked data in wikidata. Script uses library: requests and pywikibot to find and 
 download data on wikidata portal.
 
-API that is used: 'https://www.wikidata.org/w/api.php'
+To run the script first, you have to call the class "FindWikiPage":
+```
+data_instances = ['Q7187', 'Q8054', 'Q2996394', 'Q14860489', 'Q5058355']
+find_wiki = FindWikiPage(instances=data_instances, api_search_quantity=30)
+```
+where instances are the instance_of the item in the wikidata (If not known, write _None_)</br>
+api_search_quantity is number of items we want to search in wikidata.
 
-#####The most important methods are:
-- *search_entities()*
-  <br /> method as input gets an item identifier and returns information about the item (statement)
-  
+<b>Main Methods in FindWikiPage are:</b>
 
-- *get_item_label()*
-  <br /> method as input gets an item identifier and returns item label
-  
+*search(data)*
 
-- *get_item_descriptions()*
-  <br /> method as input gets an item identifier and returns item description
-  
+Method for searching information about strings, but returning nothing, just remembering information that was found
+_data_ - is a list of strings that are related, that we want to find
 
-- *get_item_aliases()*
-  <br /> method as input gets an item identifier and returns item aliases
+- *get_answer()*
 
+Method returning ids, that has been found
 
-- *search_by_property()*
-  <br /> method as input gets (a property identifier and value to if there is in property):
+- *search_and_get(data)*
 
+Method is a combination of 2 methods above
 
-- *gene_search()*
-  <br /> method as input gets a list of strings with labels/descriptions that have to be found and 
-  returns list of id (if some of them were found). Method has few stages:
-  
-  1)  Using search_entities to search for gene
-  2)  Searching for linked protein
-  3)  Searching for biological_process ("P682")
-      <br /> Searching for molecular_function ("P680")
-      <br /> Searching for cell_component ("P681")
+*get_list_of_possible_answers(with_instances=True)*
 
+Method returning all possible answers for this _data_</b>
+If yo would like to get all possible answers with instance_of this items, you would have to specify
+_with_instances=True_, otherwise: _with_instances=False_
 
-- *is_in_text()*
-  <br /> Checks if some expression is in the text
-  
-
-- *start()*
-  <br /> Starts all gene search in different ways
-
-- ### check_two_csvs.py
+## check_two_csvs.py
 
 - *check_two_csvs(results_path,ground_truth_path)*
-  <br /> For given results and ground truth, gives a weighted accuracy of the method. The scoring method is not done per cell, but per row. This method is adjusted to annotation project where the first to columns are more important than the last three.
-  
+  <br /> For given results and ground truth paths, gives a weighted accuracy of the results based on the ground truth. The scoring method is not done per cell, but per row. This method is adjusted to the annotation project where the first two columns are more important than the last three.
 
+### Some examples:
 
-***
-  
-Advantages of the script: 
-- The percentage of found pages is 97%
-- Methods can be used to find separate data in wikidata
+- First of all call the class "FindWikiPage":
+```
+data_instances = ['Q7187', 'Q8054', 'Q2996394', 'Q14860489', 'Q5058355']
+find_wiki = FindWikiPage(instances=data_instances, api_search_quantity=15)
+```
+- Search and get_answers the ids:
+```
+data1 = ['SCO3114', 'protein transport', '', 'SCO3114', 'integral component of membrane']
 
-Disadvantages of the script: 
-- code is not readable 
-- vulnerable on different changes on input data
-- takes to long to find big datasets
-- not optimized
+find_wiki.search(data1)
+output = find_wiki.get_answer()
+print(output)
+```
+The same result will be by using search_and_get()
+The return is:
+```
+['Q23284357', 'Q27750183', 'Q14860325', '', 'Q14327652']
+```
+- Get all possible answers with instances:
+```
+    find_wiki.search(data1)
+    possible_answers = find_wiki.get_list_of_possible_answers(with_instances=True)
+    print("Possible answers are:")
+    pprint.pprint(possible_answers)
+```
+output:
+```
+Possible answers are:
+[{'instances': ['Q8054', 'Q2996394', '', 'Q7187', 'Q5058355'],
+  'items': ['Q27750183', 'Q14860325', '', 'Q23284357', 'Q14327652']},
+ {'instances': ['Q7187', 'Q2996394', '', 'Q8054', 'Q5058355'],
+  'items': ['Q23284357', 'Q14860325', '', 'Q27750183', 'Q14327652']},
+ {'instances': ['Q8054', 'Q2996394', '', 'Q8054', 'Q5058355'],
+  'items': ['Q27750183', 'Q14860325', '', 'Q27750183', 'Q14327652']}]
 
-The ideas how we can speed up our code:
-1) While searching first columnt it has to be "instance of: gen" : so we can delete all queried items, that are not instances of gen 
-2) Use Sparql
-
-***
-## Useful information about Wikidata
-First: it is important to know the names of varariable (names) of items (features) in wikidata page. So they are here:
-![Alt text](https://upload.wikimedia.org/wikipedia/commons/a/ae/Datamodel_in_Wikidata.svg)
-
-#### It's good to know and use Wikidata:SPARQL:
-- https://query.wikidata.org/
-- https://www.wikidata.org/wiki/Wikidata:SPARQL_tutorial
-- https://www.kdnuggets.com/2018/05/brief-introduction-wikidata.html
-- https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples#Genes
-- Text Data Preprocessing: A Walk through in Python: https://www.kdnuggets.com/2018/03/text-data-preprocessing-walkthrough-python.html
-- https://developer.ibm.com/articles/use-wikidata-in-ai-and-cognitive-applications-pt1/
-
-#### API
-- https://gist.github.com/ettorerizza/7eaebbd731781b6007d9bdd9ddd22713
-- https://www.mediawiki.org/wiki/API:Presenting_Wikidata_knowledge
-
-#### Pywikibot
-- https://www.wikidata.org/wiki/Wikidata:Pywikibot_-_Python_3_Tutorial/Data_Harvest
+```
