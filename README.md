@@ -1,6 +1,8 @@
 # Gen - protein - other info finding in WikiData scripts
 
-###Repo contains two scripts: 
+
+
+###Repo contains three scripts: 
 - ### read_write_files.py
 <br /> Script to read file with information that has to be found:
 <br /> *file_example (input_file)*: 
@@ -70,6 +72,13 @@ API that is used: 'https://www.wikidata.org/w/api.php'
 
 - *start()*
   <br /> Starts all gene search in different ways
+
+- ### check_two_csvs.py
+
+- *check_two_csvs(results_path,ground_truth_path)*
+  <br /> For given results and ground truth, gives a weighted accuracy of the method. The scoring method is not done per cell, but per row. This method is adjusted to annotation project where the first to columns are more important than the last three.
+  
+
 
 ***
   
