@@ -2,7 +2,7 @@
 
 
 All scripts were developed for python3.x for Windows users (Other platforms are not verified)
-###Repo contains three scripts: 
+###Repo contains 2 scripts: 
 ## read_write_files.py
 <br /> Script is mainly responsible for reading files which contains 
 information that has to be found, and write the output to another file.<br />
@@ -162,11 +162,6 @@ Method is a combination of 2 methods above
 Method returning all possible answers for this _data_</b>
 If yo would like to get all possible answers with instance_of this items, you would have to specify
 _with_instances=True_, otherwise: _with_instances=False_
-
-## check_two_csvs.py
-
-- *check_two_csvs(results_path,ground_truth_path)*
-  <br /> For given results and ground truth paths, gives a weighted accuracy of the results based on the ground truth. The scoring method is not done per cell, but per row. This method is adjusted to the annotation project where the first two columns are more important than the last three.
 
 ### Some examples:
 

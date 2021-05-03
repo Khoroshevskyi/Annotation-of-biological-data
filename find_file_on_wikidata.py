@@ -1,5 +1,5 @@
 import time
-from wikidata_search_each import FindWikiPage
+from find_single_row_on_wikidata import FindWikiPage
 import re
 import multiprocessing
 import pprint
