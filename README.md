@@ -3,13 +3,13 @@
 
 All scripts were developed for python3.x for Windows users (Other platforms are not verified)
 ###Repo contains 3 scripts: 
-## entity_classification.py
+## find_file_on_wikidata.py
 <br /> Script is mainly responsible for reading files which contains 
 information that has to be found, and write the output to another file.<br />
 
 All configurations that script is using can be found in [config.json](config.json)
 
-<b>Main configurations and paths that have to be specified in [config.json](config.json)</b>:
+### Main configurations and paths that have to be specified in [config.json](config.json)</b>:
 -
 - <b>*"classify_entities"*</b>
   
